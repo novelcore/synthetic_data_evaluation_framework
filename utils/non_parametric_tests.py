@@ -163,14 +163,14 @@ def statistical_analysis(df: pd.DataFrame, verbose:bool=True) -> (pd.DataFrame, 
     Ranking = pd.DataFrame([])
     Ranking["Methods"] = df.columns
     Ranking["FAR"] = rankings_avg
+    # Sorting based on FAR score
     Ranking = Ranking.sort_values(by="FAR", ignore_index=True)
-
     d = {Ranking["Methods"][i]: Ranking["FAR"][i] for i in range(Ranking.shape[0])}
-        
-    # Finner post-hoc test
-    comparisons, _, _, adj_p_values = finner_test(d)
 
-    # Ranking["Comparisons"] = ["-"] + comparisons
+    # Finner post-hoc test
+    _, _, _, adj_p_values = finner_test(d)
+    adj_p_values.reverse()
+    
     Ranking["APV"] = ["-"] + adj_p_values
     Ranking["Null hypothesis"] = Ranking["APV"].apply(
         lambda x: "-" if x == "-" else "Rejected" if x < 0.05 else "Failed to reject"
